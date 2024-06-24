@@ -1,0 +1,41 @@
+menu "SSH Serial Configuration"
+    config SSC_UART1_TX
+        int "UART1 Tx GPIO number"
+        default 32
+        range 0 33
+        help
+            The GPIO number of the pin for transmitting serial data to the target.
+            Note that GPIOs 34-39 can only be used as inputs.
+
+    config SSC_UART1_RX
+        int "UART1 Rx GPIO number"
+        default 33
+        range 0 39
+        help
+            The GPIO number of the pin for receiving serial data from the target.
+
+    config SSC_TARGET_RESET_PIN
+        int "Target RESET GPIO number"
+        default 4
+        range 0 33
+        help
+            The GPIO number of the pin connected to the RESET pin of the target.
+            Note that GPIOs 34-39 can only be used as inputs.
+
+    config SSC_TARGET_ON_OFF_PIN
+        int "Target On/Off GPIO number"
+        default 19
+        range 0 33
+        help
+            The GPIO number of the pin that is connected to the power on/off pin of the target, if it has one.
+            Note that GPIOs 34-39 can only be used as inputs.
+
+    config SSC_WIFI_ON_DEMAND_PIN
+        int "Wi-Fi On-Demand GPIO number"
+        default 0
+        range 0 39
+        help
+            Connect a push-button for this GPIO number to force the ESP into AP mode to allow reconfiguring it.
+            The default pin is connected to the BOOT button on the ESP32-devkit.
+
+endmenu
