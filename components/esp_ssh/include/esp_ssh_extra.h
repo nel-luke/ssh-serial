@@ -1,6 +1,9 @@
 #ifndef ESP_SSH_EXTRAS_H_
 #define ESP_SSH_EXTRAS_H_
 
+#define MBEDTLS_GCM_ALT
+#include <gcm_alt.h>
+
 #define IMAXBEL 50
 #define ECHOCTL 1
 #define ECHOKE 2

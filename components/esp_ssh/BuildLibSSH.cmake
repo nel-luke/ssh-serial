@@ -11,6 +11,7 @@ set(WITH_PCAP OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(WITH_EXAMPLES OFF)
 set(WITH_SYMBOL_VERSIONING OFF)
+set(WITH_FORK OFF)
 
 #set(ZLIB_BUILD_EXAMPLES OFF)
 #set(SKIP_INSTALL_ALL TRUE)
@@ -18,7 +19,10 @@ set(WITH_SYMBOL_VERSIONING OFF)
 #add_subdirectory(./external/zlib EXCLUDE_FROM_ALL)
 
 set(MBEDTLS_ROOT_DIR ${IDF_PATH}/components/mbedtls/mbedtls ${COMPONENT_DIR}/fake_lib)
-set(MBEDTLS_INCLUDE_DIR ${IDF_PATH}/components/mbedtls/mbedtls/include ${COMPONENT_DIR}/include)
+set(MBEDTLS_INCLUDE_DIR
+        ${IDF_PATH}/components/mbedtls/mbedtls/include
+        ${IDF_PATH}/components/mbedtls/port/include
+        ${COMPONENT_DIR}/include)
 
 set(HAVE_GETADDRINFO TRUE)
 set(HAVE_POLL TRUE)
@@ -26,6 +30,8 @@ set(HAVE_TERMIOS_H TRUE)
 list(APPEND SUPPORTED_COMPILER_FLAGS "-Wno-error=char-subscripts" "-Wno-error=format=")
 
 add_subdirectory(${COMPONENT_DIR}/external/libssh EXCLUDE_FROM_ALL)
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/external/libssh/config.h "#include <esp_ssh_extras.h>")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/external/libssh/config.h "#include <esp_ssh_extra.h>")
 
-target_link_libraries(${COMPONENT_LIB} INTERFACE ssh)
+add_library(extras ./esp_ssh_extra.c)
+
+target_link_libraries(ssh INTERFACE extras)
