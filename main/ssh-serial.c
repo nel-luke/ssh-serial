@@ -21,6 +21,8 @@
 
 #include <wifi.h>
 
+#include <esp_ssh.h>
+
 #define HOST_NAME_KEY "host_name"
 #define MAX_HOST_NAME_LEN 16
 #define DEFAULT_HOST_NAME "SSH-Serial"
@@ -30,10 +32,12 @@
 static QueueHandle_t gpio_evt_queue = NULL;
 
 static const char TAG[] = "main";
+//static ssh_channel t;
 
 static void IRAM_ATTR gpio_isr_handler(void* arg) {
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+    test();
 }
 
 static void handle_gpio(void* arg) {
@@ -47,7 +51,7 @@ static void handle_gpio(void* arg) {
 
 void app_main(void)
 {
-    printf("Hello world v.%s!\n", CONFIG_APP_PROJECT_VER);
+//    printf("Hello world v.%s!\n", CONFIG_APP_PROJECT_VER);
 
     gpio_config_t io_config = {
             .intr_type = GPIO_INTR_NEGEDGE,
@@ -89,7 +93,7 @@ void app_main(void)
         ESP_ERROR_CHECK(nvs_set_str(nvs, HOST_NAME_KEY, DEFAULT_HOST_NAME));
         ESP_ERROR_CHECK(nvs_commit(nvs));
         nvs_close(nvs);
-        strcpy(host_name, DEFAULT_HOST_NAME);
+//        strcpy(host_name, DEFAULT_HOST_NAME);
         //ESP_ERROR_CHECK(nvs_get_str(nvs, "host_name", host_name, &length));
     } else {
         ESP_ERROR_CHECK(err);
