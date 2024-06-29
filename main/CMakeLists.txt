@@ -1,3 +1,5 @@
-idf_component_register(SRCS ssh-serial.c
-                    INCLUDE_DIRS "."
-                    PRIV_REQUIRES driver nvs_flash esp_netif esp_wifi wifi esp_ssh)
+idf_component_register(SRCS ssh-serial.c ssh-example.c
+        INCLUDE_DIRS "."
+        PRIV_REQUIRES driver nvs_flash esp_netif esp_wifi wifi esp_ssh)
+
+component_compile_options("-Wno-unknown-pragmas")

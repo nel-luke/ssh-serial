@@ -2,6 +2,8 @@
 #define ESP_SSH_EXTRAS_H_
 
 #define MBEDTLS_GCM_ALT
+#define MBEDTLS_THREADING_C
+#define MBEDTLS_THREADING_PTHREAD
 #include <gcm_alt.h>
 
 #define IMAXBEL 50
