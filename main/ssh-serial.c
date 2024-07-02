@@ -87,13 +87,14 @@ void app_main(void)
 #pragma ide diagnostic ignored "UnreachableCode"
 {
     printf("---- SSH-Serial v%s ----\n", project_version);
+
+    ESP_LOGI(TAG, "Starting event loop");
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     configure_gpio(); // TODO change to main_gpio_init()
 
     main_nvs_init();
     char* hostname = main_nvs_get_hostname();
-
-    ESP_LOGI(TAG, "Starting event loop"); // TODO Move to the top
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     ESP_LOGI(TAG, "Starting Wi-Fi");
     // Initialize networking stack
