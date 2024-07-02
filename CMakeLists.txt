@@ -4,5 +4,11 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.16)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CgvFindVersion)
+cgv_find_version(Project)
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(ssh-serial VERSION 0.0.1 LANGUAGES C)
+project(SSH-Serial VERSION ${Project_VERSION} LANGUAGES C)
+
+configure_file("cmake/config.h.in" "${CMAKE_BINARY_DIR}/config.h" @ONLY)

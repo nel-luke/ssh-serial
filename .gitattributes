@@ -1,0 +1,2 @@
+/.gitattributes export-ignore
+/cmake/CgvFindVersion.cmake export-subst

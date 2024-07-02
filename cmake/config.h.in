@@ -1,0 +1,4 @@
+static const char project_version[] = "@Project_VERSION_STRING@";
+static const int project_version_major = @PROJECT_VERSION_MAJOR@;
+static const int project_version_minor = @PROJECT_VERSION_MINOR@;
+static const int project_version_patch = @PROJECT_VERSION_PATCH@;

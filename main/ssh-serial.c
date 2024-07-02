@@ -15,6 +15,7 @@
 #include <libssh/server.h>
 #include <pthread.h>
 
+#include "config.h"
 #include "gpio.h"
 #include "nvs.h"
 
@@ -85,14 +86,13 @@ void app_main(void)
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnreachableCode"
 {
-//    printf("Hello world v.%s!\n", CONFIG_APP_PROJECT_VER);
-
+    printf("---- SSH-Serial v%s ----\n", project_version);
     configure_gpio(); // TODO change to main_gpio_init()
 
     main_nvs_init();
     char* hostname = main_nvs_get_hostname();
 
-    ESP_LOGI(TAG, "Starting event loop");
+    ESP_LOGI(TAG, "Starting event loop"); // TODO Move to the top
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     ESP_LOGI(TAG, "Starting Wi-Fi");
