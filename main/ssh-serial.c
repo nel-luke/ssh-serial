@@ -9,9 +9,6 @@
 #include <esp_netif.h>
 #include <esp_system.h>
 #include <esp_wifi.h>
-#include <nvs_flash.h>
-
-#include <lwip/sockets.h>
 
 #include <wifi.h>
 
@@ -19,6 +16,7 @@
 #include <pthread.h>
 
 #include "gpio.h"
+#include "nvs.h"
 
 extern void *session_thread(void *arg);
 
@@ -73,15 +71,7 @@ static const char private_key[] =
         "7HszMohsIV5/gwAAABxsdWtlQEx1a2VzLU1hY0Jvb2stUHJvLmxvY2FsAQIDBAU=\n"
         "-----END OPENSSH PRIVATE KEY-----";
 
-#define HOST_NAME_KEY "host_name"
-#define MAX_HOST_NAME_LEN 16
-#define DEFAULT_HOST_NAME "SSH-Serial"
-
-
-
 static const char TAG[] = "main";
-
-
 
 void set_bind_options(ssh_bind sshbind) {
     int verbosity = SSH_LOG_TRACE;
@@ -97,39 +87,10 @@ void app_main(void)
 {
 //    printf("Hello world v.%s!\n", CONFIG_APP_PROJECT_VER);
 
-    configure_gpio();
+    configure_gpio(); // TODO change to main_gpio_init()
 
-    ESP_LOGI(TAG, "Initializing NVS");
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        // NVS partition is truncated and needs to be erased
-        // Retry nvs_flash_init
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(err);
-
-    char host_name[MAX_HOST_NAME_LEN];
-    size_t length = MAX_HOST_NAME_LEN;
-
-    ESP_LOGI(TAG, "Retrieving host name...");
-    nvs_handle_t nvs;
-    err = nvs_open("storage", NVS_READONLY, &nvs);
-    if (err == ESP_ERR_NVS_NOT_FOUND) {
-        ESP_LOGW(TAG, "Host name not initialized yet!");
-        ESP_ERROR_CHECK(nvs_open("storage", NVS_READWRITE, &nvs));
-        ESP_LOGI(TAG, "Setting host name to %s", DEFAULT_HOST_NAME);
-        ESP_ERROR_CHECK(nvs_set_str(nvs, HOST_NAME_KEY, DEFAULT_HOST_NAME));
-        ESP_ERROR_CHECK(nvs_commit(nvs));
-        nvs_close(nvs);
-//        strcpy(host_name, DEFAULT_HOST_NAME);
-        //ESP_ERROR_CHECK(nvs_get_str(nvs, "host_name", host_name, &length));
-    } else {
-        ESP_ERROR_CHECK(err);
-        ESP_ERROR_CHECK(nvs_get_str(nvs, HOST_NAME_KEY, host_name, &length));
-        nvs_close(nvs);
-    }
-    ESP_LOGI(TAG, "Host name is %s", host_name);
+    main_nvs_init();
+    char* hostname = main_nvs_get_hostname();
 
     ESP_LOGI(TAG, "Starting event loop");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -138,27 +99,10 @@ void app_main(void)
     // Initialize networking stack
     ESP_ERROR_CHECK(esp_netif_init());
     esp_netif_t *netif = esp_netif_create_default_wifi_sta();
-    ESP_ERROR_CHECK(esp_netif_set_hostname(netif, host_name));
-    wifi_start(host_name);
+    ESP_ERROR_CHECK(esp_netif_set_hostname(netif, hostname));
+    wifi_start(hostname);
 
-//    ESP_LOGI(TAG, "Starting SNTP");
-//    misc_start_sntp();
-
-    ESP_LOGI(TAG, "Retrieving MAC address...");
-    uint8_t mac_addr[6];
-    ESP_ERROR_CHECK(esp_netif_get_mac(netif, mac_addr));
-    ESP_LOGI(TAG, "MAC address is %x:%x:%x:%x:%x:%x",
-             mac_addr[0], mac_addr[1], mac_addr[2],
-             mac_addr[3], mac_addr[4], mac_addr[5]);
-
-    esp_netif_ip_info_t ip_info = { 0 };
-    esp_netif_get_ip_info(netif, &ip_info);
-    struct in_addr ip_struct = { 0 };
-    inet_addr_from_ip4addr(&ip_struct, &ip_info.ip);
-
-    char ip_addr[INET_ADDRSTRLEN];
-    lwip_inet_ntop(AF_INET, &ip_struct, ip_addr, INET_ADDRSTRLEN);
-
+    free(hostname);
 
     ssh_bind sshbind;
     ssh_session session;
